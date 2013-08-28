@@ -23,6 +23,16 @@ public class Klausel {
 		}
 	}
 	
+	public int getSmallestNumbber(){
+		int i = Math.abs(vars.get(0));
+		for(int var : vars){
+			if(Math.abs(var) < i){
+				i = Math.abs(var);
+			}
+		}
+		return i;
+	}
+	
 	public List<Integer> getVars() {
 		return vars;
 	}

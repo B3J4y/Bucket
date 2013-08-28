@@ -8,10 +8,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.Bucket.Daten.Klausel;
+import de.Bucket.Daten.*;
 
 public class BucketElimination {
 	public List<Klausel> readOutFile(String path) throws IOException{
+		//TODO mehrere cnfs verarbeiten
 		List<Klausel> klauseln = new ArrayList<Klausel>();
 		
 		File file = new File(path);
@@ -74,8 +75,31 @@ public class BucketElimination {
 		return klauseln;
 	}
 	
+	public List<Bucket> klauselToBuckets(List<Klausel> klauseln){
+		List<Bucket> initBuckets = new ArrayList<Bucket>();
+		for(Klausel kls : klauseln){
+			if(initBuckets.size() == 0){
+				initBuckets.add(new Bucket(kls));
+			} else {
+				Boolean isBucket = true;
+				for(Bucket buck : initBuckets){
+					if(buck.addKlausel(kls)){
+						isBucket = false;
+						break;
+					}
+				}
+				if(isBucket){
+					initBuckets.add(new Bucket(kls));
+				}
+			}
+		}
+		return initBuckets;
+	}
+	
 	public static void main(String[] args) throws IOException {
-		new BucketElimination().readOutFile(args[0]);
+		BucketElimination bucEli = new BucketElimination();
+		List<Klausel> klauseln = bucEli.readOutFile(args[0]);
+		bucEli.klauselToBuckets(klauseln);
 		System.out.println("fertig");
 	}
 }
