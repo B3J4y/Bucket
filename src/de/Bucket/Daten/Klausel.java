@@ -23,6 +23,17 @@ public class Klausel {
 		}
 	}
 	
+	public String varsToString(){
+		String str = "{";
+		for(Integer i : vars){
+			str += String.valueOf(i) + ", ";
+		}
+		if(vars.size() != 0){
+			str = str.substring(0, str.length() - 2);
+		}
+		return str + "}";
+	}
+	
 	public int getSmallestNumbber(){
 		int i = Math.abs(vars.get(0));
 		for(int var : vars){

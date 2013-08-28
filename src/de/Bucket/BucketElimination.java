@@ -6,11 +6,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.Bucket.Daten.*;
 
 public class BucketElimination {
+	private int high;
+	
 	public List<Klausel> readOutFile(String path) throws IOException{
 		//TODO mehrere cnfs verarbeiten
 		List<Klausel> klauseln = new ArrayList<Klausel>();
@@ -22,7 +26,6 @@ public class BucketElimination {
 		int intKlausel = 0;
 		
 		READLINE:for(line = br.readLine(); line != null;line = br.readLine()){
-			System.out.println(line);
 			if(line.split(" ")[0].contains("c")){
 				
 			} else {
@@ -33,6 +36,7 @@ public class BucketElimination {
 						if(line.split(" ")[1].contains("cnf")){
 							int klauselHigh = Integer.parseInt(line.split(" ")[3]);
 							for(int i = 0; i < klauselHigh; i++){
+								high = Integer.parseInt(line.split(" ")[2]);
 								Klausel klausel = new Klausel(Integer.parseInt(line.split(" ")[2]));
 								klauseln.add(klausel);
 							}
@@ -96,10 +100,78 @@ public class BucketElimination {
 		return initBuckets;
 	}
 	
+	public void sortBuckets(List<Bucket> buckets){
+		Boolean sat = true;
+		for(int i = 0; i < high; i++){
+			System.out.println("Processing Bucket " + (i+1));
+			List<Klausel> positives = new ArrayList<Klausel>();
+			List<Klausel> negatives = new ArrayList<Klausel>();
+			try{
+				for(Klausel kls : buckets.get(i).getKlauseln()){
+					if(kls.getVars().contains(kls.getSmallestNumbber())){
+						positives.add(kls);
+					} else {
+						negatives.add(kls);
+					}
+				}
+				if((positives.size() == 0) || (negatives.size() == 0) ){
+					/*
+					for(Klausel kls : positives){
+						System.out.println(kls.varsToString() + " ° {} = " + kls.varsToString());
+					}
+					for(Klausel kls : negatives){
+						System.out.println(kls.varsToString() + " ° {} = " + kls.varsToString());
+					}
+					*/
+				} else{
+					for(Klausel klsPos: positives){
+						for(Klausel klsNeg : negatives){
+							String str = "";
+							str += klsPos.varsToString() + " ° " + klsNeg.varsToString();
+	
+							Set<Integer> set = new HashSet<Integer>();
+							klsPos.getVars().remove(new Integer(klsPos.getSmallestNumbber()));
+							klsNeg.getVars().remove(new Integer(klsNeg.getSmallestNumbber() * (-1)));
+							
+							
+							set.addAll(klsPos.getVars());
+							set.addAll(klsNeg.getVars());
+							Klausel newKlausel = new Klausel(high, new ArrayList<Integer>(set));
+							str += " = " + newKlausel.varsToString();
+							
+							Boolean isBucket = true;
+							if(set.size() == 0){
+								sat = false;
+							} else {
+								for(Bucket buck : buckets){
+									if(buck.addKlausel(newKlausel)){
+										isBucket = false;
+										break;
+									}
+								}
+								if(isBucket){
+									buckets.add(new Bucket(newKlausel));
+								}
+								System.out.println(str);
+							}
+						}
+					}
+				}
+			} catch(IndexOutOfBoundsException e){
+				
+			}
+		}
+		if(sat){
+			System.out.println("SAT");
+		} else {
+			System.out.println("UNSAT");
+		}
+	}
+	
 	public static void main(String[] args) throws IOException {
 		BucketElimination bucEli = new BucketElimination();
 		List<Klausel> klauseln = bucEli.readOutFile(args[0]);
-		bucEli.klauselToBuckets(klauseln);
-		System.out.println("fertig");
+		List<Bucket> buckets = bucEli.klauselToBuckets(klauseln);
+		bucEli.sortBuckets(buckets);
 	}
 }
