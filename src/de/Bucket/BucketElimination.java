@@ -12,11 +12,24 @@ import java.util.Set;
 
 import de.Bucket.Daten.*;
 
+/**
+ * Implementierung der Bucket Eliminierung
+ * 
+ * @author jbe
+ */
 public class BucketElimination {
+	
 	private int high;
 	
+	/**
+	 * Liest die Datei die als Path eingegeben wird aus und wandelt das DIMACS Format in die
+	 * Klauselstruktur um.
+	 * 
+	 * @param path - String
+	 * @return Eine Liste der eingegebenen Klauseln
+	 * @throws IOException
+	 */
 	public List<Klausel> readOutFile(String path) throws IOException{
-		//TODO mehrere cnfs verarbeiten
 		List<Klausel> klauseln = new ArrayList<Klausel>();
 		
 		File file = new File(path);
@@ -42,7 +55,8 @@ public class BucketElimination {
 							}
 						}else {
 							System.out.println("Error, nach p muss ein cnf kommen!");
-							break;
+							klauseln = new ArrayList<Klausel>();
+							break READLINE;
 						}
 					} else {
 						if(doSmth && (line.matches("(-*[0-9]\\s)+[0-9]")) && (line.length() > 2)){
@@ -54,9 +68,14 @@ public class BucketElimination {
 							for(String str : strNumbs){
 								int myNumb = Integer.parseInt(str);
 								if(myNumb != 0 ){
-									klauseln.get(intKlausel).addVar(myNumb);
+									if(! klauseln.get(intKlausel).addVar(myNumb)){
+										klauseln = new ArrayList<Klausel>();
+										System.out.println("Error, Zahl ist größer als in der p cnf definiert");
+										break READLINE;
+									}
 								}else{
 									if(countNumbs != (strNumbs.length - 1)){
+										klauseln = new ArrayList<Klausel>();
 										System.out.println("Error, die 0 ist an der falschen Stelle");
 										break READLINE;
 									}
@@ -67,10 +86,13 @@ public class BucketElimination {
 							intKlausel++;
 						} else {
 							System.out.println("Error, Formatfehler! Erste Zeile p Zahl Zahl, danach nur Zeilen mit Zahlen");
+							klauseln = new ArrayList<Klausel>();
+							break READLINE;
 						}
 					}
 				} catch (NumberFormatException e){
 					System.out.println("Error, Bustaben und Zahlen wurden vermischt. Guck dir das Format nochmal an und probiere es mit einheitlichen Zahlen");
+					klauseln = new ArrayList<Klausel>();
 					break;
 				}
 			}
@@ -79,6 +101,12 @@ public class BucketElimination {
 		return klauseln;
 	}
 	
+	/**
+	 * Verteilt die Klauseln nach dem Algorithmus auf die einzelnen Buckets.
+	 * 
+	 * @param klauseln - Liste der Klauseln
+	 * @return Die Liste der Buckets in dem sich die Klauseln befinden
+	 */
 	public List<Bucket> klauselToBuckets(List<Klausel> klauseln){
 		List<Bucket> initBuckets = new ArrayList<Bucket>();
 		for(Klausel kls : klauseln){
@@ -99,7 +127,11 @@ public class BucketElimination {
 		}
 		return initBuckets;
 	}
-	
+	/**
+	 * Führt das Eliminierungsverfahren innerhalb der Buckets durch und entscheidet ob die Klauselmenge
+	 * SAT oder UNSAT ist.
+	 * @param buckets Liste der vorgefertigten Buckets
+	 */
 	public void sortBuckets(List<Bucket> buckets){
 		Boolean sat = true;
 		for(int i = 0; i < high; i++){
@@ -115,14 +147,6 @@ public class BucketElimination {
 					}
 				}
 				if((positives.size() == 0) || (negatives.size() == 0) ){
-					/*
-					for(Klausel kls : positives){
-						System.out.println(kls.varsToString() + " ° {} = " + kls.varsToString());
-					}
-					for(Klausel kls : negatives){
-						System.out.println(kls.varsToString() + " ° {} = " + kls.varsToString());
-					}
-					*/
 				} else{
 					for(Klausel klsPos: positives){
 						for(Klausel klsNeg : negatives){
@@ -171,7 +195,9 @@ public class BucketElimination {
 	public static void main(String[] args) throws IOException {
 		BucketElimination bucEli = new BucketElimination();
 		List<Klausel> klauseln = bucEli.readOutFile(args[0]);
-		List<Bucket> buckets = bucEli.klauselToBuckets(klauseln);
-		bucEli.sortBuckets(buckets);
+		if(klauseln.size() != 0){
+			List<Bucket> buckets = bucEli.klauselToBuckets(klauseln);
+			bucEli.sortBuckets(buckets);
+		}
 	}
 }

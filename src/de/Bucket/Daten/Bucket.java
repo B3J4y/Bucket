@@ -2,7 +2,11 @@ package de.Bucket.Daten;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Datenstruktur zur Abbildung der Buckets
+ * @author jbe
+ *
+ */
 public class Bucket {
 	private List<Klausel> klauseln;
 	private int smallestNumber;

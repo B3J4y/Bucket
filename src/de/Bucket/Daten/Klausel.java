@@ -2,7 +2,11 @@ package de.Bucket.Daten;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Datenstruktur zur Abbildung der Klauseln
+ * @author jbe
+ *
+ */
 public class Klausel {
 	private List<Integer> vars;
 	private Integer high;
@@ -16,10 +20,12 @@ public class Klausel {
 		this.setHigh(high);
 	}
 	
-	public void addVar(int numb){
-		//TODO else Exception
+	public Boolean addVar(int numb){
 		if(numb <= high){
 			vars.add(numb);
+			return true;
+		} else {
+			return false;
 		}
 	}
 	
