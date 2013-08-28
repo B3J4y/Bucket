@@ -39,7 +39,13 @@ public class BucketElimination {
 		int intKlausel = 0;
 		
 		READLINE:for(line = br.readLine(); line != null;line = br.readLine()){
-			if(line.split(" ")[0].contains("c")){
+			if(line.length() == 0){
+				continue;
+			}
+			if(line.matches("\\s+")){
+				continue;
+			}
+			if(line.split(" ")[0].contains("c") && line.length() > 0){
 				
 			} else {
 				try{
