@@ -37,6 +37,9 @@ public class BucketElimination {
 		String line ="";
 		Boolean doSmth = false;
 		int intKlausel = 0;
+		Boolean nothing = true;
+		Boolean nullFile = true;
+		int klauselHigh = 1;
 		
 		READLINE:for(line = br.readLine(); line != null;line = br.readLine()){
 			if(line.length() == 0){
@@ -50,10 +53,11 @@ public class BucketElimination {
 			} else {
 				try{
 					if((line.split(" ")[0].contains("p")) && (! doSmth)){
+						nothing = false;
 						intKlausel = 0;
 						doSmth = true;
 						if(line.split(" ")[1].contains("cnf")){
-							int klauselHigh = Integer.parseInt(line.split(" ")[3]);
+							klauselHigh = Integer.parseInt(line.split(" ")[3]);
 							for(int i = 0; i < klauselHigh; i++){
 								high = Integer.parseInt(line.split(" ")[2]);
 								Klausel klausel = new Klausel(Integer.parseInt(line.split(" ")[2]));
@@ -66,6 +70,7 @@ public class BucketElimination {
 						}
 					} else {
 						if(doSmth && (line.matches("(-*[0-9]\\s)+[0-9]")) && (line.length() > 2)){
+							nullFile = false;
 							if(intKlausel == (klauseln.size() - 1)){
 								doSmth = false;
 							}
@@ -97,13 +102,21 @@ public class BucketElimination {
 						}
 					}
 				} catch (NumberFormatException e){
-					System.out.println("Error, Bustaben und Zahlen wurden vermischt. Guck dir das Format nochmal an und probiere es mit einheitlichen Zahlen");
+					System.out.println("Error, Bustaben und Zahlen wurden vermischt. Guck dir das Format nochmal an und probiere es mit Zahlen");
 					klauseln = new ArrayList<Klausel>();
 					break;
 				}
 			}
 		};
 		br.close();
+		if(nothing){
+			System.out.println("Error, keine Eingabe!");
+		} else{
+			if(nullFile && (klauselHigh == 0) && (intKlausel == 0)){
+				
+				System.out.println("SAT");
+			}
+		}
 		return klauseln;
 	}
 	
@@ -182,8 +195,8 @@ public class BucketElimination {
 								if(isBucket){
 									buckets.add(new Bucket(newKlausel));
 								}
-								System.out.println(str);
 							}
+							System.out.println(str);
 						}
 					}
 				}
