@@ -57,6 +57,7 @@ public class BucketElimination {
 						intKlausel = 0;
 						doSmth = true;
 						if(line.split(" ")[1].contains("cnf")){
+							nothing = false;
 							klauselHigh = Integer.parseInt(line.split(" ")[3]);
 							for(int i = 0; i < klauselHigh; i++){
 								nothing = false;
