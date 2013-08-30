@@ -41,13 +41,17 @@ public class Klausel {
 	}
 	
 	public int getSmallestNumbber(){
-		int i = Math.abs(vars.get(0));
-		for(int var : vars){
-			if(Math.abs(var) < i){
-				i = Math.abs(var);
+		if(vars.size() == 0){
+			return 0;
+		} else{
+			int i = Math.abs(vars.get(0));
+			for(int var : vars){
+				if(Math.abs(var) < i){
+					i = Math.abs(var);
+				}
 			}
+			return i;
 		}
-		return i;
 	}
 	
 	public List<Integer> getVars() {

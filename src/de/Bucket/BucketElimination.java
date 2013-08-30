@@ -53,23 +53,26 @@ public class BucketElimination {
 			} else {
 				try{
 					if((line.split(" ")[0].contains("p")) && (! doSmth)){
-						nothing = false;
+						
 						intKlausel = 0;
 						doSmth = true;
 						if(line.split(" ")[1].contains("cnf")){
 							klauselHigh = Integer.parseInt(line.split(" ")[3]);
 							for(int i = 0; i < klauselHigh; i++){
+								nothing = false;
 								high = Integer.parseInt(line.split(" ")[2]);
 								Klausel klausel = new Klausel(Integer.parseInt(line.split(" ")[2]));
 								klauseln.add(klausel);
 							}
 						}else {
+							nothing = false;
+							System.out.println(line);
 							System.out.println("Error, nach p muss ein cnf kommen!");
 							klauseln = new ArrayList<Klausel>();
 							break READLINE;
 						}
 					} else {
-						if(doSmth && (line.matches("(-*[0-9]\\s)+[0-9]")) && (line.length() > 2)){
+						if(doSmth && (line.matches("(-*[0-9]\\s)*0\\s*")) && (line.length() >= 1)){
 							nullFile = false;
 							if(intKlausel == (klauseln.size() - 1)){
 								doSmth = false;
@@ -80,13 +83,17 @@ public class BucketElimination {
 								int myNumb = Integer.parseInt(str);
 								if(myNumb != 0 ){
 									if(! klauseln.get(intKlausel).addVar(myNumb)){
+										nothing = false;
 										klauseln = new ArrayList<Klausel>();
+										System.out.println(line);
 										System.out.println("Error, Zahl ist größer als in der p cnf definiert");
 										break READLINE;
 									}
 								}else{
 									if(countNumbs != (strNumbs.length - 1)){
+										nothing = false;
 										klauseln = new ArrayList<Klausel>();
+										System.out.println(line);
 										System.out.println("Error, die 0 ist an der falschen Stelle");
 										break READLINE;
 									}
@@ -96,12 +103,16 @@ public class BucketElimination {
 							}
 							intKlausel++;
 						} else {
+							nothing = false;
+							System.out.println(line);
 							System.out.println("Error, Formatfehler! Erste Zeile p Zahl Zahl, danach nur Zeilen mit Zahlen");
 							klauseln = new ArrayList<Klausel>();
 							break READLINE;
 						}
 					}
 				} catch (NumberFormatException e){
+					nothing = false;
+					System.out.println(line);
 					System.out.println("Error, Bustaben und Zahlen wurden vermischt. Guck dir das Format nochmal an und probiere es mit Zahlen");
 					klauseln = new ArrayList<Klausel>();
 					break;
@@ -112,7 +123,7 @@ public class BucketElimination {
 		if(nothing){
 			System.out.println("Error, keine Eingabe!");
 		} else{
-			if(nullFile && (klauselHigh == 0) && (intKlausel == 0)){
+			if(nullFile && (klauseln.size() == 0) && (klauselHigh== 0)){
 				
 				System.out.println("SAT");
 			}
@@ -212,11 +223,14 @@ public class BucketElimination {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		BucketElimination bucEli = new BucketElimination();
-		List<Klausel> klauseln = bucEli.readOutFile(args[0]);
-		if(klauseln.size() != 0){
-			List<Bucket> buckets = bucEli.klauselToBuckets(klauseln);
-			bucEli.sortBuckets(buckets);
+		for(String arg : args){
+			System.out.println("File :" + arg);
+			BucketElimination bucEli = new BucketElimination();
+			List<Klausel> klauseln = bucEli.readOutFile(arg);
+			if(klauseln.size() != 0){
+				List<Bucket> buckets = bucEli.klauselToBuckets(klauseln);
+				bucEli.sortBuckets(buckets);
+			}
 		}
 	}
 }
